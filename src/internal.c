@@ -2310,21 +2310,20 @@ static int DoUserAuthRequestPublicKey(WOLFSSH* ssh, WS_UserAuthData* authData,
                                                  wc_HashGetDigestSize(hashId),
                                                  wc_HashGetOID(hashId));
 
-                if (ret != 0)
+                compare = ConstantCompare(encDigest, checkDigest,
+                                          min(encDigestSz, checkDigestSz));
+                sizeCompare = encDigestSz != checkDigestSz;
+
+                if (compare || sizeCompare || ret < 0) {
+                    WLOG(WS_LOG_DEBUG, "DUARPK: signature compare failure");
+                    /* Ignore the return code on this Send. The handshake
+                     * failed, going to error out at this point. The
+                     * fail message is a courtesy to the peer. */
+                    SendUserAuthFailure(ssh, 0);
                     ret = WS_CRYPTO_FAILED;
-
-                if (ret == WS_SUCCESS) {
-                    compare = ConstantCompare(encDigest, checkDigest,
-                                              encDigestSz);
-                    sizeCompare = encDigestSz != checkDigestSz;
-
-                    if (compare || sizeCompare || ret < 0) {
-                        WLOG(WS_LOG_DEBUG, "DUARPK: signature compare failure");
-                        ret = SendUserAuthFailure(ssh, 0);
-                    }
-                    else {
-                        ssh->clientState = CLIENT_USERAUTH_DONE;
-                    }
+                }
+                else {
+                    ssh->clientState = CLIENT_USERAUTH_DONE;
                 }
             }
         }
