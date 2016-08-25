@@ -105,6 +105,7 @@ enum {
 #define UINT32_SZ        4
 #define SSH_PROTO_SZ     7    /* "SSH-2.0" */
 #define SSH_PROTO_EOL_SZ 2    /* Just the CRLF */
+
 #ifndef DEFAULT_HIGHWATER_MARK
     #define DEFAULT_HIGHWATER_MARK ((1024 * 1024 * 1024) - (32 * 1024))
 #endif
@@ -280,6 +281,10 @@ struct WOLFSSH_CHANNEL {
     Buffer   inputBuffer;
     struct WOLFSSH* ssh;
     struct WOLFSSH_CHANNEL* next;
+    uint16_t eof:1;
+    uint16_t peerEof:1;
+    uint16_t closed:1;
+    uint16_t peerClosed:1;
 };
 
 
