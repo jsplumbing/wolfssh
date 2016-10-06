@@ -239,6 +239,13 @@ const char* wolfSSH_get_error_name(const WOLFSSH* ssh)
 }
 
 
+int wolfSSH_worker(WOLFSSH* ssh)
+{
+    (void)ssh;
+    return WS_SUCCESS;
+}
+
+
 const char acceptError[] = "accept error: %s, %d";
 const char acceptState[] = "accept state: %s";
 
