@@ -158,6 +158,14 @@ struct WOLFSSH_CTX {
     uint32_t            highwaterMark;
     const char*         banner;
     uint32_t            bannerSz;
+    uint8_t*            encAlgoList;
+    uint32_t            encAlgoListSz;
+    uint8_t*            macAlgoList;
+    uint32_t            macAlgoListSz;
+    uint8_t*            keyAlgoList;
+    uint32_t            keyAlgoListSz;
+    uint8_t*            kexAlgoList;
+    uint32_t            kexAlgoListSz;
 };
 
 
@@ -290,6 +298,7 @@ struct WOLFSSH_CHANNEL {
 
 WOLFSSH_LOCAL WOLFSSH_CTX* CtxInit(WOLFSSH_CTX*, void*);
 WOLFSSH_LOCAL void CtxResourceFree(WOLFSSH_CTX*);
+WOLFSSH_LOCAL int CtxStoreAlgoList(const char*, uint8_t**, uint32_t*, void*);
 WOLFSSH_LOCAL WOLFSSH* SshInit(WOLFSSH*, WOLFSSH_CTX*);
 WOLFSSH_LOCAL void SshResourceFree(WOLFSSH*, void*);
 

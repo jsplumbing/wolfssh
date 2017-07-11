@@ -42,6 +42,19 @@
 
 static const char echoserverBanner[] = "wolfSSH Example Echo Server\n";
 
+static const char cannedEncAlgoNames[] = "aes128-gcm@openssh.com,aes128-cbc";
+static const char cannedMacAlgoNames[] = "hmac-sha2-256,hmac-sha1-96,"
+                                         "hmac-sha1";
+static const char cannedKeyAlgoNames[] = "ssh-rsa";
+static const char cannedKexAlgoNames[] = "diffie-hellman-group-exchange-sha256,"
+                                         "diffie-hellman-group14-sha1,"
+                                         "diffie-hellman-group1-sha1";
+static const uint32_t cannedEncAlgoNamesSz = sizeof(cannedEncAlgoNames) - 1;
+static const uint32_t cannedMacAlgoNamesSz = sizeof(cannedMacAlgoNames) - 1;
+static const uint32_t cannedKeyAlgoNamesSz = sizeof(cannedKeyAlgoNames) - 1;
+static const uint32_t cannedKexAlgoNamesSz = sizeof(cannedKexAlgoNames) - 1;
+
+
 typedef int SOCKET_T;
 #ifdef TEST_IPV6
     typedef struct sockaddr_in6 SOCKADDR_IN_T;

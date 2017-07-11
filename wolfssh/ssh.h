@@ -127,6 +127,10 @@ WOLFSSH_API void* wolfSSH_GetUserAuthCtx(WOLFSSH*);
 WOLFSSH_API int wolfSSH_CTX_SetBanner(WOLFSSH_CTX*, const char*);
 WOLFSSH_API int wolfSSH_CTX_UsePrivateKey_buffer(WOLFSSH_CTX*,
                                                  const uint8_t*, uint32_t, int);
+WOLFSSH_API int wolfSSH_CTX_SetEncAlgoList(WOLFSSH_CTX*, const char*);
+WOLFSSH_API int wolfSSH_CTX_SetMacAlgoList(WOLFSSH_CTX*, const char*);
+WOLFSSH_API int wolfSSH_CTX_SetKeyAlgoList(WOLFSSH_CTX*, const char*);
+WOLFSSH_API int wolfSSH_CTX_SetKexAlgoList(WOLFSSH_CTX*, const char*);
 
 WOLFSSH_API int wolfSSH_accept(WOLFSSH*);
 WOLFSSH_API int wolfSSH_stream_read(WOLFSSH*, uint8_t*, uint32_t);

@@ -557,6 +557,30 @@ int wolfSSH_CTX_UsePrivateKey_buffer(WOLFSSH_CTX* ctx,
 }
 
 
+int wolfSSH_CTX_SetEncAlgoList(WOLFSSH_CTX* ctx, const char* algoList)
+{
+    return CtxStoreAlgoList(algoList, &ctx->encAlgoList, &ctx->encAlgoListSz);
+}
+
+
+int wolfSSH_CTX_SetMacAlgoList(WOLFSSH_CTX* ctx, const char* algoList)
+{
+    return CtxStoreAlgoList(algoList, &ctx->macAlgoList, &ctx->macAlgoListSz);
+}
+
+
+int wolfSSH_CTX_SetKeyAlgoList(WOLFSSH_CTX* ctx, const char* algoList)
+{
+    return CtxStoreAlgoList(algoList, &ctx->keyAlgoList, &ctx->keyAlgoListSz);
+}
+
+
+int wolfSSH_CTX_SetKexAlgoList(WOLFSSH_CTX* ctx, const char* algoList)
+{
+    return CtxStoreAlgoList(algoList, &ctx->kexAlgoList, &ctx->kexAlgoListSz);
+}
+
+
 void wolfSSH_GetStats(WOLFSSH* ssh, uint32_t* txCount, uint32_t* rxCount,
                       uint32_t* seq, uint32_t* peerSeq)
 {
