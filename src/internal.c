@@ -2786,12 +2786,23 @@ static int DoChannelRequest(WOLFSSH* ssh,
                 ret = GetUint32(&modesSz, buf, len, &begin);
 
             if (ret == WS_SUCCESS) {
+                uint32_t i, modeValue;
+                uint8_t *mode;
                 WLOG(WS_LOG_DEBUG, "  term = %s", term);
                 WLOG(WS_LOG_DEBUG, "  widthChar = %u", widthChar);
                 WLOG(WS_LOG_DEBUG, "  heightRows = %u", heightRows);
                 WLOG(WS_LOG_DEBUG, "  widthPixels = %u", widthPixels);
                 WLOG(WS_LOG_DEBUG, "  heightPixels = %u", heightPixels);
                 WLOG(WS_LOG_DEBUG, "  modes = %u", (modesSz - 1) / 5);
+                
+                modesSz = (modesSz - 1)/5;
+                mode = buf + begin;
+
+                for (i = 0; i < modesSz; i++, mode += 5) {
+                    ato32(&mode[1], &modeValue);
+                    WLOG(WS_LOG_INFO, "  Mode[%u] = %u (%u)",
+                         i, mode[0], modeValue);
+                }
             }
         }
         else if (WSTRNCMP(type, "env", typeSz) == 0) {
