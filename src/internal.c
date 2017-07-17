@@ -2697,7 +2697,7 @@ static int DoChannelOpen(WOLFSSH* ssh,
             ssh->channelListSz++;
             ssh->defaultPeerChannelId = peerChannelId;
 
-            ssh->clientState = CLIENT_DONE;
+            ssh->clientState = CLIENT_CHANNEL_OPEN_DONE;
         }
     }
 
@@ -2829,6 +2829,9 @@ static int DoChannelRequest(WOLFSSH* ssh,
                 ret = GetString(value, &valueSz, buf, len, &begin);
 
             WLOG(WS_LOG_DEBUG, "  %s = %s", name, value);
+        }
+        else if (WSTRNCMP(type, "shell", typeSz) == 0) {
+            ssh->clientState = CLIENT_DONE;
         }
     }
 
