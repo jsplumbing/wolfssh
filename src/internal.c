@@ -157,6 +157,9 @@ const char* GetErrorString(int err)
         case WS_ECC_E:
             return "ECDSA buffer error";
 
+        case WS_INVALID_TTYMODE:
+            return "invalid tty mode requested";
+
         default:
             return "Unknown error code";
     }
@@ -2738,6 +2741,7 @@ static int DoChannelClose(WOLFSSH* ssh,
 static int DoChannelRequest(WOLFSSH* ssh,
                             uint8_t* buf, uint32_t len, uint32_t* idx)
 {
+    WOLFSSH_CHANNEL *channel = NULL;
     uint32_t begin = *idx;
     uint32_t channelId;
     uint32_t typeSz;
@@ -2756,9 +2760,10 @@ static int DoChannelRequest(WOLFSSH* ssh,
     if (ret == WS_SUCCESS)
         ret = GetBoolean(&wantReply, buf, len, &begin);
 
-    if (ret != WS_SUCCESS) {
-        WLOG(WS_LOG_DEBUG, "Leaving DoChannelRequest(), ret = %d", ret);
-        return ret;
+    if (ret == WS_SUCCESS) {
+        channel = ChannelFind(ssh, channelId, FIND_SELF);
+        if (channel == NULL)
+            ret = WS_INVALID_CHANID;
     }
 
     if (ret == WS_SUCCESS) {
@@ -2800,8 +2805,14 @@ static int DoChannelRequest(WOLFSSH* ssh,
 
                 for (i = 0; i < modesSz; i++, mode += 5) {
                     ato32(&mode[1], &modeValue);
-                    WLOG(WS_LOG_INFO, "  Mode[%u] = %u (%u)",
-                         i, mode[0], modeValue);
+                    if (mode[0] == MODE_ICRNL) {
+                        channel->termModes.icrnl = modeValue;
+                        WLOG(WS_LOG_INFO, "TTY mode ICRNL = %u", modeValue);
+                    }
+                    else if (mode[0] == MODE_ONLCR) {
+                        channel->termModes.onlcr = modeValue;
+                        WLOG(WS_LOG_INFO, "TTY mode ONLCR = %u", modeValue);
+                    }
                 }
             }
         }

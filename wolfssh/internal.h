@@ -281,6 +281,12 @@ struct WOLFSSH {
 };
 
 
+struct TerminalModes {
+    uint16_t icrnl:1;
+    uint16_t onlcr:1;
+};
+
+
 struct WOLFSSH_CHANNEL {
     uint8_t  channelType;
     uint32_t channel;
@@ -289,6 +295,7 @@ struct WOLFSSH_CHANNEL {
     uint32_t peerChannel;
     uint32_t peerWindowSz;
     uint32_t peerMaxPacketSz;
+    struct TerminalModes termModes;
     Buffer   inputBuffer;
     struct WOLFSSH* ssh;
     struct WOLFSSH_CHANNEL* next;
@@ -464,6 +471,13 @@ enum WS_BufferTypes {
     BUFTYPE_CERT,
     BUFTYPE_PRIVKEY,
     BUFTYPE_PUBKEY
+};
+
+
+enum WS_ModeOpcode {
+    MODE_TTY_OP_END    = 0,
+    MODE_ICRNL         = 36,
+    MODE_ONLCR         = 72
 };
 
 

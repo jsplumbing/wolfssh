@@ -513,6 +513,34 @@ void wolfSSH_GetStats(WOLFSSH* ssh, uint32_t* txCount, uint32_t* rxCount,
 }
 
 
+int wolfSSH_GetTTYMode(WOLFSSH* ssh, uint32_t channelId,
+                                               uint32_t modeId, uint32_t* value)
+{
+    WOLFSSH_CHANNEL *channel = NULL;
+    int ret = WS_SUCCESS;
+
+    (void)channelId;
+
+    WLOG(WS_LOG_DEBUG, "Entering wolfSSH_GetTTYMode()");
+    if (ssh == NULL || ssh->channelList == NULL || value == NULL)
+        ret = WS_BAD_ARGUMENT;
+
+    if (ret == WS_SUCCESS) {
+        channel = ssh->channelList;
+        if (modeId == MODE_ICRNL)
+            *value = channel->termModes.icrnl;
+        else if (modeId == MODE_ONLCR)
+            *value = channel->termModes.onlcr;
+        else {
+            ret = WS_BAD_ARGUMENT;
+        }
+    }
+
+    WLOG(WS_LOG_DEBUG, "Leaving wolfSSH_GetTTYMode(), ret = %u", ret);
+    return ret;
+}
+
+
 int wolfSSH_KDF(uint8_t hashId, uint8_t keyId,
                 uint8_t* key, uint32_t keySz,
                 const uint8_t* k, uint32_t kSz,
