@@ -385,7 +385,11 @@ static THREAD_RETURN CYASSL_THREAD server_worker(void* vArgs)
     if (wolfSSH_accept(threadCtx->ssh) == WS_SUCCESS) {
         uint8_t* buf = NULL;
         uint8_t* tmpBuf;
+        uint32_t icrnlMode = 0, onlcrMode = 0;
         int bufSz, backlogSz = 0, rxSz, txSz, stop = 0, txSum;
+
+        wolfSSH_GetTTYMode(threadCtx->ssh, 0, 36, &icrnlMode);
+        wolfSSH_GetTTYMode(threadCtx->ssh, 0, 72, &onlcrMode);
 
         do {
             bufSz = EXAMPLE_BUFFER_SZ + backlogSz;
