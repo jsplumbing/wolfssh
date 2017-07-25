@@ -378,48 +378,80 @@ static int dump_stats(thread_ctx_t* ctx)
     return wolfSSH_stream_send(ctx->ssh, (uint8_t*)stats, statsSz);
 }
 
+uint8_t testStr[] = "I slit a sheet upon the slitted sheet I shit\r"
+                            "Echo server sending some things\n"
+                            "Echo server seding more things\r\n"
+                            "Sassafrass!\r\n";
 static THREAD_RETURN CYASSL_THREAD server_worker(void* vArgs)
 {
     thread_ctx_t* threadCtx = (thread_ctx_t*)vArgs;
 
     if (wolfSSH_accept(threadCtx->ssh) == WS_SUCCESS) {
-        uint8_t* buf = NULL;
-        uint8_t* tmpBuf;
+        uint8_t rxBuf[EXAMPLE_BUFFER_SZ];
+        uint8_t txBuf[EXAMPLE_BUFFER_SZ];
         uint32_t icrnlMode = 0, onlcrMode = 0;
-        int bufSz, backlogSz = 0, rxSz, txSz, stop = 0, txSum;
+        int backlogSz = 0, rxSz, txSz, stop = 0, txSum;
 
         wolfSSH_GetTTYMode(threadCtx->ssh, 0, 36, &icrnlMode);
         wolfSSH_GetTTYMode(threadCtx->ssh, 0, 72, &onlcrMode);
+        wolfSSH_stream_send(threadCtx->ssh, testStr, (uint32_t)strlen((char*)testStr));
 
         do {
-            bufSz = EXAMPLE_BUFFER_SZ + backlogSz;
-
-            tmpBuf = realloc(buf, bufSz);
-            if (tmpBuf == NULL)
-                stop = 1;
-            else
-                buf = tmpBuf;
-
             if (!stop) {
                 rxSz = wolfSSH_stream_read(threadCtx->ssh,
-                                           buf + backlogSz,
-                                           EXAMPLE_BUFFER_SZ);
+                                           rxBuf, EXAMPLE_BUFFER_SZ);
                 if (rxSz > 0) {
+                    int i;
+                    for (i = 0; i < rxSz; i++) {
+                        switch (rxBuf[i]) {
+                            case 0x03:
+                                stop = 1;
+                                break;
+                            case 0x05:
+                                if (dump_stats(threadCtx) <= 0)
+                                    stop = 1;
+                                break;
+                                 /* icrnlMode means to map CR to NL on
+                                  * input. There shouldn't be any NL
+                                  * in the input ever. ocrnlMode means
+                                  * to map NL to CR-NL pairs on output,
+                                  * that the client will be expecting
+                                  * CR-NL. */
+                            case '\n':
+                                if (icrnlMode) {
+                                    printf("Shouldn't have that due to icrnlMode\n");
+                                }
+                                break;
+                            case '\r':
+                                if (onlcrMode) {
+                                    ;
+                                }
+                                break;
+                        }
+                    }
                     backlogSz += rxSz;
                     txSum = 0;
                     txSz = 0;
 
                     while (backlogSz != txSum && txSz >= 0 && !stop) {
                         txSz = wolfSSH_stream_send(threadCtx->ssh,
-                                                   buf + txSum,
+                                                   txBuf + txSum,
                                                    backlogSz - txSum);
 
                         if (txSz > 0) {
                             uint8_t c;
-                            const uint8_t matches[] = { 0x03, 0x04, 0x05, 0x00 };
+                            const uint8_t matches[] = { '\r', '\n', 0x03, 0x04, 0x05, 0x00 };
 
-                            c = find_char(matches, buf + txSum, txSz);
+                            c = find_char(matches, txBuf + txSum, txSz);
                             switch (c) {
+                                case '\r':
+                                    printf("\nCR\n");
+                                    txSum += txSz;
+                                    break;
+                                case '\n':
+                                    printf("\nLF\n");
+                                    txSum += txSz;
+                                    break;
                                 case 0x03:
                                     stop = 1;
                                     break;
@@ -435,15 +467,13 @@ static THREAD_RETURN CYASSL_THREAD server_worker(void* vArgs)
                     }
 
                     if (txSum < backlogSz)
-                        memmove(buf, buf + txSum, backlogSz - txSum);
+                        memmove(txBuf, txBuf + txSum, backlogSz - txSum);
                     backlogSz -= txSum;
                 }
                 else
                     stop = 1;
             }
         } while (!stop);
-
-        free(buf);
     }
     close(threadCtx->fd);
     wolfSSH_free(threadCtx->ssh);
