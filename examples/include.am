@@ -4,3 +4,4 @@
 
 include examples/client/include.am
 include examples/echoserver/include.am
+include examples/wolfscp/include.am

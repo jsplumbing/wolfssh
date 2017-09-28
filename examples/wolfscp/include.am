@@ -1,0 +1,11 @@
+# vim:ft=automake
+# All paths should be given relative to the root
+
+noinst_PROGRAMS += examples/wolfscp/wolfscp
+noinst_HEADERS += examples/wolfscp/wolfscp.h
+examples_wolfscp_wolfscp_SOURCES      = examples/wolfscp/wolfscp.c
+examples_wolfscp_wolfscp_LDADD        = src/libwolfssh.la
+examples_wolfscp_wolfscp_DEPENDENCIES = src/libwolfssh.la
+
+dist_example_DATA+= examples/wolfscp/wolfscp.c
+DISTCLEANFILES+= examples/wolfscp/.libs/wolfscp
