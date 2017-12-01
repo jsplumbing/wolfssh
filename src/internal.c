@@ -3596,6 +3596,16 @@ static int DoChannelRequest(WOLFSSH* ssh,
 
             WLOG(WS_LOG_DEBUG, "  %s = %s", name, value);
         }
+        else if (WSTRNCMP(type, "exec", typeSz) == 0) {
+            char command[64];
+            word32 commandSz;
+
+            commandSz = sizeof(command);
+            ret = GetString(command, &commandSz, buf, len, &begin);
+
+            if (ret == WS_SUCCESS)
+                WLOG(WS_LOG_DEBUG, "  command = %s", command);
+        }
     }
 
     if (ret == WS_SUCCESS)
